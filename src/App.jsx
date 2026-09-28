@@ -1,122 +1,86 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import produkData from './data/produk';
+import Card from './components/Card';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [filter, setFilter] = useState('semua');
+
+  // Filter data sesuai tombol filter yang dipilih
+  const filteredProduk = produkData.filter((p) => {
+    if (filter === 'tersedia') return p.stok > 0;
+    if (filter === 'habis') return p.stok === 0;
+    return true; // 'semua'
+  });
+
+  const countTotal = produkData.length;
+  const countTersedia = produkData.filter((p) => p.stok > 0).length;
+  const countHabis = produkData.filter((p) => p.stok === 0).length;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-container">
+      <header className="app-header">
+        <div className="header-badge">Pemrograman Web III • Pertemuan 3</div>
+        <h1 className="app-title">⚽ Katalog Tiket Pertandingan Bola</h1>
+        <p className="app-subtitle">
+          Latihan: Bangun Katalog Produk Sederhana menggunakan React + Vite
+        </p>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        {/* Tombol filter untuk mengubah isi list sesuai Target Hasil */}
+        <div className="filter-group">
+          <button
+            type="button"
+            className={`filter-btn ${filter === 'semua' ? 'active' : ''}`}
+            onClick={() => setFilter('semua')}
+          >
+            Semua Produk ({countTotal})
+          </button>
+          <button
+            type="button"
+            className={`filter-btn ${filter === 'tersedia' ? 'active' : ''}`}
+            onClick={() => setFilter('tersedia')}
+          >
+            Stok Tersedia ({countTersedia})
+          </button>
+          <button
+            type="button"
+            className={`filter-btn ${filter === 'habis' ? 'active' : ''}`}
+            onClick={() => setFilter('habis')}
+          >
+            Stok Habis ({countHabis})
+          </button>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <main className="catalog-section">
+        <div className="catalog-info-bar">
+          <h2 className="catalog-heading">
+            Daftar Tiket ({filteredProduk.length})
+          </h2>
+          <span className="filter-status-text">
+            Filter aktif: <strong>{filter === 'semua' ? 'Semua' : filter === 'tersedia' ? 'Tersedia' : 'Habis'}</strong>
+          </span>
+        </div>
+
+        {/* Render semua data dengan map() dan key={p.id} sesuai instruksi nomor 3 */}
+        <div className="products-grid">
+          {filteredProduk.map((p) => (
+            <Card key={p.id} produk={p} />
+          ))}
+        </div>
+
+        {filteredProduk.length === 0 && (
+          <div className="empty-state">
+            <p>Tidak ada tiket dalam kategori ini.</p>
+          </div>
+        )}
+      </main>
+
+      <footer className="app-footer">
+        <p>© 2026 Booking Tiket Bola — Praktik Pemrograman Web III (Pertemuan 3)</p>
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
